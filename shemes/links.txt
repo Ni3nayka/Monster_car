@@ -1,0 +1,3 @@
+nrf:
+https://robotchip.ru/obzor-radio-nrf24l01palna/
+https://wiki.iarduino.ru/page/NRF24L01-trema/
