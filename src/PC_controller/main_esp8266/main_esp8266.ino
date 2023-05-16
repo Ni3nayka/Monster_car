@@ -18,14 +18,6 @@ AVOCADO_esp esp;
 
 #include "motor.h"
 
-
-// aceleration
-#define SPEED_A 1
-#define sgn(a) (a==0?0:(a>0?1:-1))
-#define speed_up(old_speed,new_speed) (abs(old_speed)<abs(new_speed) && sgn(old_speed)==sgn(new_speed))
-int old_left_speed = 0, old_right_speed = 0;
-int old_forward_vector = 0, old_left_vector = 0;
-
 // update max speed
 #define UPDATE_MAX_SPEED_D 10
 #define UP_SPEED_BUTTON_1 4
@@ -37,10 +29,16 @@ int max_motor_speed = 50;
 
 // servo
 #define UPDATE_SERVO_ARROW 1
+#define SERVO_PIN D2
+#define SERVO_TIME_UPDATE 10
+#define SERVO_MAX_ANGLE 160
+#define SERVO_MIN_ANGLE 35
 int servo_angle = 90;
+unsigned long int servo_time = 0;
 
 void setup(){
   Serial.begin(9600);
+  pinMode(SERVO_PIN,OUTPUT);
   MotorShield.setup();
   esp.setup();
 }
@@ -50,13 +48,26 @@ void loop(){
   robot_main();
 }
 
+void write_servo(int angle, int pin=SERVO_PIN) {
+  angle = constrain(angle, 0, 180);
+  int pos = map(angle, 0, 180, 544, 2400);
+  digitalWrite(pin, HIGH);
+  delayMicroseconds(pos);
+  digitalWrite(pin, LOW);
+  delayMicroseconds(20000 - pos);
+  delay(1);
+}
+
 void robot_main() {
   esp.update();
   // arrows: servo
-  if (esp.gamepad_arrow[UPDATE_SERVO_ARROW]!=0) {
+  if (esp.gamepad_arrow[UPDATE_SERVO_ARROW]!=0 && servo_time+SERVO_TIME_UPDATE<millis()) {
     servo_angle += esp.gamepad_arrow[UPDATE_SERVO_ARROW];
-    servo_angle = constrain(servo_angle,0,180);
+    servo_angle = constrain(servo_angle,SERVO_MIN_ANGLE,SERVO_MAX_ANGLE);
+    servo_time = millis();
+    Serial.println(servo_angle);
   }
+  write_servo(servo_angle);
   // button: max_speed
   if (esp.gamepad_button[UP_SPEED_BUTTON_1]==1 && up_speed_1==0 || esp.gamepad_button[UP_SPEED_BUTTON_2]==1 && up_speed_2==0) {
     max_motor_speed += UPDATE_MAX_SPEED_D;
@@ -75,15 +86,7 @@ void robot_main() {
   // joystick: motors
   int forward_vector = esp.gamepad_joystick[1];
   int left_vector = esp.gamepad_joystick[3];
-//  if (speed_up(old_forward_vector,forward_vector)) {
-//    int d = old_forward_vector - forward_vector;
-//    d = d>SPEED_A?SPEED_A:(d<-SPEED_A?-SPEED_A:d);
-//    forward_vector = old_forward_vector + d;
-//  }
-//  old_forward_vector = forward_vector;
-//  old_left_vector = left_vector;
   int left_speed = constrain(forward_vector-left_vector,-max_motor_speed,max_motor_speed);
   int right_speed = constrain(forward_vector+left_vector,-max_motor_speed,max_motor_speed);
   MotorShield.motors(left_speed,right_speed);
-  
 }

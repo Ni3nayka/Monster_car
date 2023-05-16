@@ -9,8 +9,8 @@
 
 #pragma once
 
-#define MOTOR_DIR_A_1 D8
-#define MOTOR_DIR_A_2 D7
+#define MOTOR_DIR_A_1 D7
+#define MOTOR_DIR_A_2 D8
 #define MOTOR_DIR_B_1 D6
 #define MOTOR_DIR_B_2 D5
 
