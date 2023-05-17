@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from pyzbar import pyzbar
 
-video_cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+video_cap = cv2.VideoCapture(2)#, cv2.CAP_DSHOW)
 
 red = (0, 0, 255)
 blue = (255, 0, 0)
