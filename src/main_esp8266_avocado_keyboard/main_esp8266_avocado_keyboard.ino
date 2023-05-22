@@ -32,8 +32,6 @@ AVOCADO_esp esp;
 #define MOTOR_LEFT_BUTTON_OFF "-65"
 #define MOTOR_RIGHT_BUTTON_OFF "-68"
 int forward_vector = 0, left_vector = 0;
-//#define FORWARD_VECTOR_K 90
-//#define LEFT_VECTOR_K 100
 #define LEFT_VECTOR_K 0.2
 
 // update max speed
@@ -130,18 +128,12 @@ void robot_main() {
       right_speed = left_vector*max_left_motor_speed;
       left_speed = -right_speed;
     }
-    else { // if (left_vector==0) {
+    else { 
       left_speed = forward_vector*max_motor_speed;
       right_speed = left_speed;
       left_speed = left_vector==1?left_speed*LEFT_VECTOR_K:left_speed;
       right_speed = left_vector==-1?right_speed*LEFT_VECTOR_K:right_speed;
     }
-//    else {
-//      left_speed = max_left_motor_speed==1?forward_vector*max_motor_speed*0.5
-//      right_speed =
-////      left_speed = constrain(forward_vector*FORWARD_VECTOR_K-left_vector*LEFT_VECTOR_K,-max_motor_speed,max_motor_speed);
-////      right_speed = constrain(forward_vector*FORWARD_VECTOR_K+left_vector*LEFT_VECTOR_K,-max_motor_speed,max_motor_speed);  
-//    }
     #ifdef DEBUG_SERIAL
     Serial.println("motor_speed: " + String(left_speed) + " " + String(right_speed));
     #endif
