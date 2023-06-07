@@ -47,19 +47,36 @@ int max_motor_speed = 30;
 int max_left_motor_speed = 20;
 
 // servo
+#include "my_servo.h"
+MyServo servo_camera;
+MyServo servo_left_arm;
+MyServo servo_right_arm;
 #define SERVO_UP_BUTTON "+38"
 #define SERVO_DOWN_BUTTON "+40"
 #define SERVO_UPDATE_D 2
 #define SERVO_PIN D2
 #define SERVO_MAX_ANGLE 150
 #define SERVO_MIN_ANGLE 20
-int servo_angle = 70;
+
+#define SERVO_LEFT_ARM_PIN D1
+#define SERVO_RIGHT_ARM_PIN D3
+#define SERVO_ARM_UP_BUTTON "+104"
+#define SERVO_ARM_DOWN_BUTTON "+98"
+#define SERVO_TRANSLATE_LEFT_TO_RIGHT_ANGLE(a) (275-a) // (265-a)
+#define SERVO_MIN_LEFT_ANGLE 5
+//int servo_angle = 70;
 
 void setup(){
   Serial.begin(9600);
   pinMode(SERVO_PIN,OUTPUT);
   MotorShield.setup();
   esp.setup();
+  servo_camera.attach(SERVO_PIN,350,2600,0,270);
+  servo_left_arm.attach(SERVO_LEFT_ARM_PIN,350,2600,0,270);
+  servo_right_arm.attach(SERVO_RIGHT_ARM_PIN,350,2600,0,270);
+  servo_camera.write(150);
+  servo_left_arm.write(SERVO_MIN_LEFT_ANGLE);
+  servo_right_arm.write(SERVO_TRANSLATE_LEFT_TO_RIGHT_ANGLE(servo_left_arm.get_angle()));
 }
 
 void loop(){
@@ -67,31 +84,45 @@ void loop(){
   robot_main();
 }
 
-void write_servo(int angle, int pin=SERVO_PIN) {
-  angle = constrain(angle, 0, 180);
-  int pos = map(angle, 0, 180, 544, 2400);
-  digitalWrite(pin, HIGH);
-  delayMicroseconds(pos);
-  digitalWrite(pin, LOW);
-  delayMicroseconds(20000 - pos);
-  delay(1);
-}
+//void write_servo(int angle, int pin=SERVO_PIN) {
+//  angle = constrain(angle, 0, 180);
+//  int pos = map(angle, 0, 180, 544, 2400);
+//  digitalWrite(pin, HIGH);
+//  delayMicroseconds(pos);
+//  digitalWrite(pin, LOW);
+//  delayMicroseconds(20000 - pos);
+//  delay(1);
+//}
 
 void robot_main() {
   esp.update();
   if (esp.available()) {
     String input_data = esp.read();
+    //esp.print(input_data);
     // servo
     if (input_data==SERVO_UP_BUTTON || input_data==SERVO_DOWN_BUTTON) {
-      if (input_data==SERVO_UP_BUTTON) servo_angle-=SERVO_UPDATE_D;
-      else servo_angle+=SERVO_UPDATE_D;
-      servo_angle = constrain(servo_angle,SERVO_MIN_ANGLE,SERVO_MAX_ANGLE);
+      if (input_data==SERVO_UP_BUTTON) servo_camera.write_on(-SERVO_UPDATE_D);
+      else servo_camera.write_on(SERVO_UPDATE_D);
+      //servo_angle  = constrain(servo_angle,SERVO_MIN_ANGLE,SERVO_MAX_ANGLE);
       #ifdef DEBUG_SERIAL
-      Serial.println("servo_angle: " + String(servo_angle));
+      Serial.println("camera_angle: " + String(servo_camera.get_angle()));
       #endif
       #ifdef DEBUG_WIFISERIAL
-      esp.print("servo_angle: " + String(servo_angle));
+      esp.print("camera_angle: " + String(servo_camera.get_angle()));
       #endif
+    }
+    // servo arm
+    if (input_data==SERVO_ARM_UP_BUTTON || input_data==SERVO_ARM_DOWN_BUTTON) {
+      if (input_data==SERVO_ARM_UP_BUTTON) servo_left_arm.write_on(-SERVO_UPDATE_D);
+      else  servo_left_arm.write_on(SERVO_UPDATE_D);
+      if (servo_camera.get_angle()<SERVO_MIN_LEFT_ANGLE) servo_camera.write(SERVO_MIN_LEFT_ANGLE);
+      servo_right_arm.write(SERVO_TRANSLATE_LEFT_TO_RIGHT_ANGLE(servo_left_arm.get_angle()));
+//      #ifdef DEBUG_SERIAL
+//      Serial.println("arm_angle: " + String(servo_left_arm.get_angle()) + " " + String(servo_right_arm.get_angle()));
+//      #endif
+//      #ifdef DEBUG_WIFISERIAL
+//      esp.print("arm_angle: " + String(servo_left_arm.get_angle()) + " " + String(servo_right_arm.get_angle()));
+//      #endif
     }
     // max_speed
     if (input_data==UP_SPEED_BUTTON || input_data==DOWN_SPEED_BUTTON) {
@@ -141,5 +172,8 @@ void robot_main() {
     #endif
     MotorShield.motors(left_speed,right_speed);
   }
-  write_servo(servo_angle);
+  servo_camera.write();
+  servo_left_arm.write();
+  servo_right_arm.write();
+  //write_servo(servo_angle);
 }
