@@ -13,6 +13,8 @@
 //#define SERVER_IP "192.168.1.82"
 //#define SERVER_PORT 1234
 #define ENABLE_AVOCADO_ESP_WIFI_MONITOR
+#define ENABLE_AVOCADO_ESP_WIFI_BOOT
+#define DEVICE_NAME "MonsterCar" 
 #include <AVOCADO_esp.h>
 AVOCADO_esp esp;
 
