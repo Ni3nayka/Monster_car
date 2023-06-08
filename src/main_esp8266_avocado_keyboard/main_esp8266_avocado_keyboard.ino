@@ -54,11 +54,11 @@ MyServo servo_right_arm;
 #define SERVO_UP_BUTTON "+38"
 #define SERVO_DOWN_BUTTON "+40"
 #define SERVO_UPDATE_D 2
-#define SERVO_PIN D2
+#define SERVO_PIN D1
 #define SERVO_MAX_ANGLE 150
 #define SERVO_MIN_ANGLE 20
 
-#define SERVO_LEFT_ARM_PIN D1
+#define SERVO_LEFT_ARM_PIN D4
 #define SERVO_RIGHT_ARM_PIN D3
 #define SERVO_ARM_UP_BUTTON "+104"
 #define SERVO_ARM_DOWN_BUTTON "+98"
@@ -71,7 +71,8 @@ void setup(){
   pinMode(SERVO_PIN,OUTPUT);
   MotorShield.setup();
   esp.setup();
-  servo_camera.attach(SERVO_PIN,350,2600,0,270);
+  //servo_camera.attach(SERVO_PIN,350,2600,0,270);
+  servo_camera.attach(SERVO_PIN,500,2500,0,180);
   servo_left_arm.attach(SERVO_LEFT_ARM_PIN,350,2600,0,270);
   servo_right_arm.attach(SERVO_RIGHT_ARM_PIN,350,2600,0,270);
   servo_camera.write(150);
