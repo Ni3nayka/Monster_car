@@ -32,3 +32,7 @@
 #define SERVO_ARM_DOWN_BUTTON "+33"
 #define SERVO_TAIL_UP_BUTTON "+34"
 #define SERVO_TAIL_DOWN_BUTTON "+35"
+
+// ladder
+#define LADDER_BUTTON "+71" // "+72"
+//#define LADDER_XN_BUTTON "+71"

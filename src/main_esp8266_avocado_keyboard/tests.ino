@@ -4,7 +4,7 @@
 
    author: Egor Bakay <egor_bakay@inbox.ru> Ni3nayka
    write:  May 2022
-   modify: May 2023
+   modify: June 2023
 */
 
 /*
@@ -21,6 +21,11 @@
 //#define SERVO_MAX_TAIL_ANGLE 180
 //#define SERVO_MIN_TAIL_ANGLE 0
 */
+
+//#define WIFI_NAME "test_name"
+//#define WIFI_PASSWORD "test_pass"
+//#define SERVER_IP "192.168.1.82"
+//#define SERVER_PORT 1234
 
 void test_motor() {
   MotorShield.motor_left.run(100);
