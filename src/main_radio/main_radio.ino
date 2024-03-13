@@ -1,7 +1,7 @@
 #include <iarduino_RF433_Receiver.h>
 iarduino_RF433_Receiver radio(2); // (пин)
 
-int data[5]; // массив для обмена данными
+int data[3]; // массив для обмена данными
 
 void setup(){
   radio.begin();
@@ -13,7 +13,7 @@ void setup(){
 void loop(){
   if(radio.available()){
     radio.read(&data, sizeof(data));
-    for (int i = 0; i<5; i++) {
+    for (int i = 0; i<3; i++) {
       Serial.print(data[i]);
       Serial.print(" ");
     }
