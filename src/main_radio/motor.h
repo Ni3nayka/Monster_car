@@ -11,8 +11,8 @@
 
 #define MOTOR_DIR_A_1 3
 #define MOTOR_DIR_A_2 5
-#define MOTOR_DIR_B_1 6
-#define MOTOR_DIR_B_2 9
+#define MOTOR_DIR_B_1 9
+#define MOTOR_DIR_B_2 6
 
 class Motor {
   public:

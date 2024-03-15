@@ -14,6 +14,7 @@
 iarduino_RF433_Receiver radio(2); // (пин)
 
 int data[3]; // массив для обмена данными
+unsigned long int off_time = 0;
 
 void setup(){
   Serial.begin(9600);
@@ -28,13 +29,17 @@ void loop(){
   if(radio.available()){
     radio.read(&data, sizeof(data));
     int joystick[4] = {0};
-    for (int i = 0; i < 4; i++) joystick[i] = (data[i/2]>>(i%2?8:0))&0b11111111;
+    for (int i = 0; i < 4; i++) joystick[i] = ((data[i/2]>>(i%2?8:0))&0b11111111);
     for (int i = 0; i<4; i++) {
-      joystick[i] = constrain(joystick[i]*2 - 255,-255,255);
+      joystick[i] = constrain(joystick[i]*2 - 255,-255,255)/2.5;
       if (abs(joystick[i])<25) joystick[i] = 0;
     }
-    for (int i = 0; i<4; i++) Serial.print(String(joystick[i]) + " "); Serial.println();
-    int l = -joystick[1]-joystick[0];
-    int r = -joystick[1]+joystick[0];
+    // for (int i = 0; i<4; i++) Serial.print(String(joystick[i]) + " "); Serial.println();
+    int r = -joystick[1]-joystick[0];
+    int l = -joystick[1]+joystick[0];
+    // Serial.println(String(l) + " " + String(r));
+    MotorShield.motors(l,r);
+    off_time = millis() + 500;
   }
+  else if (off_time<millis()) MotorShield.motors(0,0);
 }
