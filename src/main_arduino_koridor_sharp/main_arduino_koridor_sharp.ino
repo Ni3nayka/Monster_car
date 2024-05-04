@@ -69,22 +69,22 @@ void loop(){
   filter_1.addData(getIK(A1));
   filter_2.addData(getIK(A2));
 
-  // Serial.print(filter_0.getData());
-  // Serial.print(" ");
-  // Serial.print(filter_1.getData());
-  // Serial.print(" ");
-  // Serial.print(filter_2.getData());
-  // Serial.println();
+  Serial.print(filter_0.getData());
+  Serial.print(" ");
+  Serial.print(filter_1.getData());
+  Serial.print(" ");
+  Serial.print(filter_2.getData());
+  Serial.println();
 
   if (filter_1.getData()>10) {
-    int motor_speed = MOTOR_SPEED; //filter_1.getData()*0.42; // 30
+    int motor_speed = map(filter_1.getData(),IK_MIN,IK_MAX,MOTOR_SPEED/2,MOTOR_SPEED); // 30
     float e = filter_2.getData() - filter_0.getData();
     // float e = filter_2.getData() - 60;
     float pid_p = e;
     pid_i = pid_i*0.95+e;
     float pid_d = e - pid_e_old;
     pid_e_old = e;
-    float pid = pid_p*0.4 + pid_i*0 + pid_d*0; // 20: 0.3
+    float pid = pid_p*0.3 + pid_i*0 + pid_d*0; // 20: 0.3
     // Serial.println(pid);
     MotorShield.run(motor_speed+pid,motor_speed-pid);
   }
