@@ -1,13 +1,11 @@
 #include "motor.h"
 
-#define MOTOR_SPEED 50
+#define MOTOR_SPEED 20
 
 #define IK_MIN 5
-#define IK_MAX 80
+#define IK_MAX 90
 #define IK_MIN_BIG 5
 #define IK_MAX_BIG 150
-
-
 
 #define FILTER_DATA_SIZE 3
 class Filter {
@@ -67,9 +65,9 @@ long int pid_i = 0;
 
 void loop(){
 
-  filter_0.addData(getIKBig(A0));
+  filter_0.addData(getIK(A0));
   filter_1.addData(getIK(A1));
-  filter_2.addData(getIKBig(A2));
+  filter_2.addData(getIK(A2));
 
   // Serial.print(filter_0.getData());
   // Serial.print(" ");
@@ -79,18 +77,22 @@ void loop(){
   // Serial.println();
 
   if (filter_1.getData()>10) {
-    int motor_speed = filter_1.getData()*0.42; // 30
+    int motor_speed = MOTOR_SPEED; //filter_1.getData()*0.42; // 30
     float e = filter_2.getData() - filter_0.getData();
+    // float e = filter_2.getData() - 60;
     float pid_p = e;
     pid_i = pid_i*0.95+e;
     float pid_d = e - pid_e_old;
     pid_e_old = e;
-    float pid = pid_p*0.3 + pid_i*0 + pid_d*0.05; // 20: 0.3
+    float pid = pid_p*0.4 + pid_i*0 + pid_d*0; // 20: 0.3
     // Serial.println(pid);
     MotorShield.run(motor_speed+pid,motor_speed-pid);
   }
   else {
-    MotorShield.run(-50,-50);
+    MotorShield.run(-30,-30);
+    delay(500);
+    if (pid_i>0) MotorShield.run(30,-30);
+    else MotorShield.run(-30,30);
     delay(500);
   }
 }
