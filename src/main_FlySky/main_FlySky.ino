@@ -7,7 +7,7 @@
    modify: March 2024
 */
 
-#include "FlySky.h"
+// #include "FlySky.h"
 #include "motor.h"
 
 #define EXACT_FORWARD_K 0.3
@@ -17,8 +17,8 @@ void setup(){
   // Serial.begin(115200);
   // FlySky.begin(Serial); // Serial2
   MotorShield.setup();
-  MotorShield.run(100,100);
-  delay(1000);
+  // MotorShield.run(100,100);
+  // delay(1000);
   MotorShield.run();
 }
 
