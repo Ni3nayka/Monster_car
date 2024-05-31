@@ -56,30 +56,49 @@ void setID() {
   }
 }
 
+unsigned long int t = 0;
+
 void read_dual_sensors() {
   
   lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
   lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
 
   // print sensor one reading
-  Serial.print(F("1: "));
+  // Serial.print(F("1: "));
+  int d1 = 0;
   if(measure1.RangeStatus != 4) {     // if not out of range
-    Serial.print(measure1.RangeMilliMeter);
+    // Serial.print(measure1.RangeMilliMeter);
+    d1 = measure1.RangeMilliMeter;
+
   } else {
-    Serial.print(F("Out of range"));
+    // Serial.print(F("Out of range"));
+    d1 = 9999;
   }
   
-  Serial.print(F(" "));
+  // Serial.print(F(" "));
 
   // print sensor two reading
-  Serial.print(F("2: "));
-  if(measure2.RangeStatus != 4) {
-    Serial.print(measure2.RangeMilliMeter);
-  } else {
-    Serial.print(F("Out of range"));
-  }
+  // Serial.print(F("2: "));
+  // if(measure2.RangeStatus != 4) {
+  //   Serial.print(measure2.RangeMilliMeter);
+  // } else {
+  //   Serial.print(F("Out of range"));
+  // }
   
-  Serial.println();
+  // Serial.println();
+
+
+  int d2 = 0;
+  if(measure2.RangeStatus != 4) {   
+    d2 = measure2.RangeMilliMeter;
+
+  } else {
+    d2 = 9999;
+  }
+  if (t<millis()) { 
+    Serial.println(String(d1) + " " + String(d2));
+    t = millis()+1000;
+  }
 }
 
 void setup() {
@@ -107,5 +126,5 @@ void setup() {
 void loop() {
    
   read_dual_sensors();
-  delay(100);
+  // delay(100);
 }
