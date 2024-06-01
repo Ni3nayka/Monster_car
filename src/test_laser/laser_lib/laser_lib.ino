@@ -11,6 +11,6 @@ void setup() {
 }
 
 void loop() {
-   Serial.println(String(lazer_1.get()) + " " + String(lazer_2.get()));
+  Serial.println(String(lazer_1.get()) + " " + String(lazer_2.get()));
   delay(100);
 }
