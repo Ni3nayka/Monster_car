@@ -48,8 +48,15 @@ void setup(){
   pinMode(ENABLE_LED,OUTPUT);
   digitalWrite(ENABLE_LED,1);
   // FlySky.begin(Serial); // Serial2
+
   // MotorShield.run(100,100);
   // delay(1000);
+  // MotorShield.run(100,0); delay(1000);
+  // MotorShield.run(-100,0); delay(1000);
+  // MotorShield.run(30,0); delay(1000);
+  // MotorShield.run(-30,0); delay(1000);
+  // MotorShield.run(0,100); delay(1000);
+  // MotorShield.run(0,-100); delay(1000);
   // MotorShield.run();
 }
 
@@ -69,21 +76,21 @@ void loop() {
 
 void mainKoridor() {
   int m = 30;
-  float k_pid_backward = 2.0;
-  float k_pid_forward = 0.5;
+  float k_pid_backward = 1.0;
+  float k_pid_forward = 0.2;
 
   int e = lazer_1.get() - lazer_2.get();
   int p = e;
-  long int kub = e*e*e;
+  // long int kub = e*e*e;
   // global_integral = global_integral*0.7 + e;
   int d = e-global_e_old;
   global_e_old = e;
 
   long int pid = 0;
-  pid += p*0.7; // 0.13
+  pid += p*0.13; // 0.13
   // pid += global_integral*0.07;
   // pid += kub*0.008;
-  pid += d*3; 
+  // pid += d*1; 
   // Serial.println(pid);
   
   int pid_forward = constrain(abs(pid),0,m*k_pid_forward);
