@@ -7,6 +7,10 @@
    modify: March 2024
 */
 
+#include "lazer.h"
+Lazer lazer_1(0x30,18);
+Lazer lazer_2(0x31,19);
+
 // #include "FlySky.h"
 #include "motor.h"
 
@@ -14,15 +18,23 @@
 #define TURN_K 0.2
 
 void setup(){
-  // Serial.begin(115200);
-  // FlySky.begin(Serial); // Serial2
+  Serial.begin(115200);
   MotorShield.setup();
+  firstSetupLazers();
+  lazer_1.setup();
+  lazer_2.setup();
+  // FlySky.begin(Serial); // Serial2
   // MotorShield.run(100,100);
   // delay(1000);
-  MotorShield.run();
+  // MotorShield.run();
 }
 
-void loop(){
+void loop() { 
+  Serial.println(String(lazer_1.get()) + " " + String(lazer_2.get()));
+  delay(100);
+}
+
+void mainFlySky() {
   // // for (int i = 0; i<14; i++) Serial.print(String(FlySky.readChannel(i)) + " "); Serial.println();
   // int joystick_left_y = FlySky.readChannel(2);
   // int joystick_left_x = FlySky.readChannel(3);
