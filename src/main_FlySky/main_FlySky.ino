@@ -23,8 +23,13 @@ AVOCADO_esp esp;
 
 #include "FlySky.h"
 #define EXACT_FORWARD_K 0.3
-#define TURN_K 0.2
+#define TURN_K 0.3
 unsigned long int main_flysky_time = 0;
+
+
+// #include <ESP32Servo.h>
+// Servo servo_1;
+// Servo servo_2;
 
 // long int global_integral = 0;
 int global_e_old = 0;
@@ -36,6 +41,9 @@ void setup(){
   // firstSetupLazers();
   // lazer_1.setup();
   // lazer_2.setup();
+
+  // servo_1.attach(14);
+  // servo_2.attach(27);
 
   #ifdef WIFI_BOOTLOAD
   if (digitalRead(ENABLE_BUTTON)==1) {
@@ -65,6 +73,7 @@ void setup(){
 void loop() { 
   // Serial.println(String(lazer_1.get()) + " " + String(lazer_2.get())); delay(100);
   mainFlySky();
+  // servoUpdate();
   // esp.update(); 
 }
 
@@ -96,23 +105,28 @@ void mainKoridor() {
 
 void mainFlySky() {
   // for (int i = 0; i<14; i++) Serial.print(String(FlySky.readChannel(i)) + " "); Serial.println();
-  int joystick_left_y = FlySky.readChannel(2);
-  int joystick_left_x = FlySky.readChannel(3);
-  int joystick_right_y = FlySky.readChannel(1);
-  int joystick_right_x = FlySky.readChannel(0);
-  int stick_l = FlySky.readChannel(9);
-  int stick_r = FlySky.readChannel(10);
-  int swa = FlySky.readChannel(6)>0;
-  int swb = FlySky.readChannel(5)>0;
-  int swc = FlySky.readChannel(4); swc = swc==0?0:(swc>0?1:-1);
-  int swd = FlySky.readChannel(7)>0;
+  if (FlySky.readChannel(8)!=0) {
+    int joystick_left_y = FlySky.readChannel(2);
+    int joystick_left_x = FlySky.readChannel(3);
+    int joystick_right_y = FlySky.readChannel(1);
+    int joystick_right_x = FlySky.readChannel(0);
+    int stick_l = FlySky.readChannel(9);
+    int stick_r = FlySky.readChannel(10);
+    int swa = FlySky.readChannel(6)>0;
+    int swb = FlySky.readChannel(5)>0;
+    int swc = FlySky.readChannel(4); swc = swc==0?0:(swc>0?1:-1);
+    int swd = FlySky.readChannel(7)>0;
 
-  int forward = joystick_right_y*EXACT_FORWARD_K + (joystick_left_y+100)/2;
-  int turn = (joystick_left_x + joystick_right_x)*TURN_K;
-  int left_speed = forward + turn;
-  int right_speed = forward - turn;
-  // Serial.println(String(left_speed) + " " + String(right_speed));
-  MotorShield.run(left_speed, right_speed);
+    int forward = joystick_right_y*EXACT_FORWARD_K + (joystick_left_y+100)/2;
+    int turn = (joystick_left_x + joystick_right_x)*TURN_K;
+    int left_speed = forward + turn;
+    int right_speed = forward - turn;
+    // Serial.println(String(left_speed) + " " + String(right_speed));
+    // Serial.println(String(stick_l) + " " + String(stick_r));
+    MotorShield.run(left_speed, right_speed);
+    // servo_1.write(map(stick_l,-100,100,0,180));
+    // servo_2.write(map(stick_r,-100,100,0,180));
+  }
 
   // if (main_flysky_time>millis()) return;
   // main_flysky_time = millis() + 50;
