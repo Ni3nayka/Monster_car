@@ -30,12 +30,13 @@ unsigned long int main_flysky_time = 0;
 // #include <ESP32Servo.h>
 // Servo servo_1;
 // Servo servo_2;
+int global_stick_l_old = -1, global_stick_r_old = -1;
 
 // long int global_integral = 0;
 int global_e_old = 0;
 
 void setup(){
-  Serial.begin(115200);
+  Serial.begin(9600);
   MotorShield.setup();
   FlySky.begin(Serial2);
   // firstSetupLazers();
@@ -123,6 +124,15 @@ void mainFlySky() {
     int right_speed = forward - turn;
     // Serial.println(String(left_speed) + " " + String(right_speed));
     // Serial.println(String(stick_l) + " " + String(stick_r));
+    
+    stick_l = map(stick_l,-100,100,0,90);
+    stick_r = map(stick_r,-100,100,0,90);
+    if (global_stick_l_old!=stick_l || global_stick_r_old!=stick_r) {
+      Serial.println("[" + String(stick_l) + " " + String(stick_r) + " ]");
+    }
+    global_stick_l_old = stick_l;
+    global_stick_r_old = stick_r;
+
     MotorShield.run(left_speed, right_speed);
     // servo_1.write(map(stick_l,-100,100,0,180));
     // servo_2.write(map(stick_r,-100,100,0,180));
