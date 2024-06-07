@@ -11,7 +11,7 @@
 Lazer lazer_1(0x30,18);
 Lazer lazer_2(0x31,19);
 
-#define WIFI_BOOTLOAD
+// #define WIFI_BOOTLOAD
 #ifdef WIFI_BOOTLOAD
 #define ENABLE_AVOCADO_ESP_WIFI_BOOT
 #include "user_data.h"
@@ -19,15 +19,12 @@ Lazer lazer_2(0x31,19);
 AVOCADO_esp esp;    
 #endif
 
-// #include "FlySky.h"
 #include "motor.h"
 
-// #define EXACT_FORWARD_K 0.3
-// #define TURN_K 0.2
-
-#define ENABLE_LED 23
-#define ENABLE_BUTTON 34
-bool global_enable_button = 0;
+#include "FlySky.h"
+#define EXACT_FORWARD_K 0.3
+#define TURN_K 0.2
+unsigned long int main_flysky_time = 0;
 
 // long int global_integral = 0;
 int global_e_old = 0;
@@ -35,20 +32,25 @@ int global_e_old = 0;
 void setup(){
   Serial.begin(115200);
   MotorShield.setup();
-  firstSetupLazers();
-  lazer_1.setup();
-  lazer_2.setup();
-  
+  FlySky.begin(Serial2);
+  // firstSetupLazers();
+  // lazer_1.setup();
+  // lazer_2.setup();
+
   #ifdef WIFI_BOOTLOAD
-  esp.setup();
+  if (digitalRead(ENABLE_BUTTON)==1) {
+    esp.setup();
+  }
+  else {
+    for (int i = 0; i<5; i++) {
+      digitalWrite(ENABLE_LED,1);
+      delay(100);
+      digitalWrite(ENABLE_LED,0);
+      delay(100);
+    }
+  }
   #endif
   
-  // button
-  pinMode(ENABLE_BUTTON, INPUT);
-  pinMode(ENABLE_LED,OUTPUT);
-  digitalWrite(ENABLE_LED,1);
-  // FlySky.begin(Serial); // Serial2
-
   // MotorShield.run(100,100);
   // delay(1000);
   // MotorShield.run(100,0); delay(1000);
@@ -62,15 +64,7 @@ void setup(){
 
 void loop() { 
   // Serial.println(String(lazer_1.get()) + " " + String(lazer_2.get())); delay(100);
-  if (global_enable_button) mainKoridor();
-  else esp.update(); 
-  if (digitalRead(ENABLE_BUTTON)==0) {
-    digitalWrite(ENABLE_LED,0);
-    MotorShield.run();
-    while ((digitalRead(ENABLE_BUTTON)==0));
-    delay(100);
-    global_enable_button = !global_enable_button;
-  }
+  mainFlySky();
   // esp.update(); 
 }
 
@@ -101,17 +95,27 @@ void mainKoridor() {
 }
 
 void mainFlySky() {
-  // // for (int i = 0; i<14; i++) Serial.print(String(FlySky.readChannel(i)) + " "); Serial.println();
-  // int joystick_left_y = FlySky.readChannel(2);
-  // int joystick_left_x = FlySky.readChannel(3);
-  // int joystick_right_y = FlySky.readChannel(1);
-  // int joystick_right_x = FlySky.readChannel(0);
-  // int forward = joystick_right_y*EXACT_FORWARD_K + (joystick_left_y+100)/2;
-  // int turn = (joystick_left_x + joystick_right_x)*TURN_K;
-  // int left_speed = forward + turn;
-  // int right_speed = forward - turn;
-  // // Serial.println(String(left_speed) + " " + String(right_speed));
-  // MotorShield.motors(left_speed, right_speed);
-  // delay(10);
+  // for (int i = 0; i<14; i++) Serial.print(String(FlySky.readChannel(i)) + " "); Serial.println();
+  int joystick_left_y = FlySky.readChannel(2);
+  int joystick_left_x = FlySky.readChannel(3);
+  int joystick_right_y = FlySky.readChannel(1);
+  int joystick_right_x = FlySky.readChannel(0);
+  int stick_l = FlySky.readChannel(9);
+  int stick_r = FlySky.readChannel(10);
+  int swa = FlySky.readChannel(6)>0;
+  int swb = FlySky.readChannel(5)>0;
+  int swc = FlySky.readChannel(4); swc = swc==0?0:(swc>0?1:-1);
+  int swd = FlySky.readChannel(7)>0;
+
+  int forward = joystick_right_y*EXACT_FORWARD_K + (joystick_left_y+100)/2;
+  int turn = (joystick_left_x + joystick_right_x)*TURN_K;
+  int left_speed = forward + turn;
+  int right_speed = forward - turn;
+  // Serial.println(String(left_speed) + " " + String(right_speed));
+  MotorShield.run(left_speed, right_speed);
+
+  // if (main_flysky_time>millis()) return;
+  // main_flysky_time = millis() + 50;
+  delay(10); //   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!
 }
 
