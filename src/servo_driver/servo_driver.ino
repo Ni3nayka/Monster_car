@@ -6,8 +6,14 @@ int cache_message = 0;
 Servo servo_1;
 Servo servo_2;
 
+// #include "gy-25.h"
+// GY25 gy25(11,12); // (TX,RX) - пины гироскопа
+// long int t = 0;
+
 void setup() {
   Serial.begin(9600);
+  // gy25.setup();
+  // gy25.calibration();
   servo_1.attach(8);
   servo_2.attach(7);
   servo_1.write(80);
@@ -15,6 +21,12 @@ void setup() {
 }
 
 void loop() {
+  // gy25.update();
+  // if (t<millis()) {
+  //   gy25.print();
+  //   t = millis()+50;
+  // }
+  
   if (Serial.available()) {
     char f = Serial.read();
     if (f=='[') {
@@ -42,6 +54,5 @@ void loop() {
         cache_message = 0;
       }
     }
-    
   }
 }
