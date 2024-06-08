@@ -185,8 +185,8 @@ void mainFlySky() {
       long int e = (analogRead(35)-2100)*K;
       int M = 28;
       // Serial.println(e);
-      int l = constrain(M+e, -M/3, M);
-      int r = constrain(M-e, -M/3, M);
+      int l = constrain(M+e, -M, M);
+      int r = constrain(M-e, -M/2, M);
       MotorShield.run(l, r);
     }
     
