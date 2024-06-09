@@ -164,7 +164,7 @@ void mainFlySky() {
     // Serial.println(String(left_speed) + " " + String(right_speed));
     // Serial.println(String(stick_l) + " " + String(stick_r));
     if (swd==1) {
-      forward = joystick_right_y;
+      forward = joystick_right_y + (joystick_left_y+100)/2;
       turn = joystick_right_x;
     }
     int left_speed = forward + turn;
