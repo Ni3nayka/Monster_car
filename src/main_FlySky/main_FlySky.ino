@@ -47,7 +47,8 @@ unsigned long int servo_update_time = 0;
 int global_e_old = 0;
 
 void setup(){
-  Serial.begin(9600);
+  //Serial.begin(9600);
+  Serial.begin(115200);
   MotorShield.setup();
   FlySky.begin(Serial2);
   // gy25.setup();
@@ -81,6 +82,10 @@ void setup(){
   // MotorShield.run(0,100); delay(1000);
   // MotorShield.run(0,-100); delay(1000);
   // MotorShield.run();
+
+  MotorShield.run(10, 10);
+  delay(1000);
+  MotorShield.run();
 }
 
 void loop() { 
@@ -147,17 +152,19 @@ void gy25Update() {
 
 void mainFlySky() {
   // for (int i = 0; i<14; i++) Serial.print(String(FlySky.readChannel(i)) + " "); Serial.println();
-  if (FlySky.readChannel(8)!=0) {
-    int joystick_left_y = FlySky.readChannel(2);
-    int joystick_left_x = FlySky.readChannel(3);
-    int joystick_right_y = FlySky.readChannel(1);
-    int joystick_right_x = FlySky.readChannel(0);
-    int stick_l = FlySky.readChannel(9);
-    int stick_r = FlySky.readChannel(10);
-    int swa = FlySky.readChannel(6)>0;
-    int swb = FlySky.readChannel(5)>0;
-    int swc = FlySky.readChannel(4); swc = swc==0?0:(swc>0?1:-1);
-    int swd = FlySky.readChannel(7)>0;
+
+  int joystick_left_y = FlySky.readChannel(2);
+  int joystick_left_x = FlySky.readChannel(3);
+  int joystick_right_y = FlySky.readChannel(1);
+  int joystick_right_x = FlySky.readChannel(0);
+  int stick_l = FlySky.readChannel(8);
+  int stick_r = FlySky.readChannel(9);
+  int swa = FlySky.readChannel(4)>0;
+  int swb = FlySky.readChannel(5)>0;
+  int swc = FlySky.readChannel(6); swc = swc==0?0:(swc>0?1:-1);
+  int swd = FlySky.readChannel(7)>0;
+
+  if (swb) {
 
     int forward = joystick_right_y*EXACT_FORWARD_K + (joystick_left_y+100)/2;
     int turn = (joystick_left_x + joystick_right_x)*TURN_K;
@@ -179,10 +186,13 @@ void mainFlySky() {
     global_stick_l_old = stick_l;
     global_stick_r_old = stick_r;
 
-    if (swa==0) {
+    if (swc==-1) {
       MotorShield.run(left_speed, right_speed);
     }
-    else {
+    else if (swc==0) { // auto_gyroscope
+
+    }
+    else { // auto_black_line
       float K = 0.2;
       long int e = (analogRead(35)-2100)*K;
       int M = 28;
@@ -194,6 +204,9 @@ void mainFlySky() {
     
     // servo_1.write(map(stick_l,-100,100,0,180));
     // servo_2.write(map(stick_r,-100,100,0,180));
+  }
+  else {
+    MotorShield.run();
   }
 
   // if (main_flysky_time>millis()) return;
