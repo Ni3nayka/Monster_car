@@ -4,7 +4,7 @@
 
    author: Egor Bakay <egor_bakay@inbox.ru> Ni3nayka
    write:  May 2022
-   modify: March 2024
+   modify: June 2025
 */
 
 #pragma once
@@ -16,12 +16,7 @@
 #define MOTOR_DIR_B_2 33
 #define MOTOR_DIR_B_PWM 25
 
-
-// устанавливаем настройки формирования ШИМ
-#define MOTOR_PWM_HZ 30000 // частота ШИМ
-#define MOTOR_BITS 8 // разрядность (для управления) ШИМ
 #define MOTOR_MAP 2.5 // для перевода скорости из размерности 100 в размерность в соответствии с MOTOR_BITS (8 бит => 255 "ШИМ" ~ 250)
-int global_channel_pwm = 0;
 
 class Motor {
   public:
@@ -31,22 +26,18 @@ class Motor {
       Motor::pin2 = pin2;
       Motor::pin_en = pin_en;
       pinMode(Motor::pin_en,OUTPUT);
-      ledcSetup(global_channel_pwm, MOTOR_PWM_HZ, MOTOR_BITS);
-      ledcSetup(global_channel_pwm+1, MOTOR_PWM_HZ, MOTOR_BITS);
-      ledcAttachPin(Motor::pin1, global_channel_pwm);
-      ledcAttachPin(Motor::pin2, global_channel_pwm+1);
-      Motor::channel = global_channel_pwm;
-      global_channel_pwm+=2;
+      pinMode(pin1,OUTPUT);
+      pinMode(pin2,OUTPUT);
       Motor::run();
     }
     void run(int speed=0) {
       speed = constrain(speed,-100,100)*MOTOR_MAP;
-      digitalWrite(Motor::pin_en,speed!=0);
-      ledcWrite(Motor::channel, constrain(speed,0,255));
-      ledcWrite(Motor::channel+1, constrain(-speed,0,255));
+      digitalWrite(Motor::pin1,speed>0);
+      digitalWrite(Motor::pin2,speed<0);
+      analogWrite(Motor::pin_en,abs(speed));
     }
   private:
-    int pin1, pin2, pin_en, channel;
+    int pin1, pin2, pin_en;
 };
 
 class MyMotorShield {
