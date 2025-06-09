@@ -32,6 +32,9 @@ AVOCADO_esp esp;
 unsigned long int main_flysky_time = 0;
 
 
+#include "SoftwareSerial.h"
+SoftwareSerial servoDriver(5, 18); // RX, TX
+
 long int gy_data[4] = {0};
 int gy_number = 0;
 long int cache_message = 0;
@@ -51,6 +54,7 @@ void setup(){
   Serial.begin(115200);
   MotorShield.setup();
   FlySky.begin(Serial2);
+  servoDriver.begin(9600);
   // gy25.setup();
   // firstSetupLazers();
   // lazer_1.setup();
@@ -177,10 +181,11 @@ void mainFlySky() {
     int left_speed = forward + turn;
     int right_speed = forward - turn;
     
-    stick_l = map(stick_l,-100,100,0,90);
-    stick_r = map(stick_r,-100,100,0,90);
+    stick_l = map(stick_l,-100,100,0,180);
+    stick_r = map(stick_r,-100,100,0,180);
     if (global_stick_l_old!=stick_l || global_stick_r_old!=stick_r || servo_update_time<millis()) {
-      Serial.println("[" + String(stick_l) + " " + String(stick_r) + " ]");
+      servoDriver.println(String(stick_l)+"1");
+      // Serial.println("[" + String(stick_l) + " " + String(stick_r) + " ]");
       servo_update_time = millis()+1000;
     }
     global_stick_l_old = stick_l;
