@@ -4,17 +4,8 @@
 
    author: Egor Bakay <egor_bakay@inbox.ru> Ni3nayka
    write:  March 2024
-   modify: March 2024
+   modify: June 2025
 */
-
-
-// #include <gy-25.h>
-// GY25 gy25(19,15); // (TX,RX) - пины гироскопа
-// unsigned long int gy25_debug_time = 0;
-
-// #include "lazer.h"
-// Lazer lazer_1(0x30,18);
-// Lazer lazer_2(0x31,19);
 
 // #define WIFI_BOOTLOAD
 #ifdef WIFI_BOOTLOAD
@@ -34,15 +25,11 @@ unsigned long int main_flysky_time = 0;
 
 #include "SoftwareSerial.h"
 SoftwareSerial servoDriver(5, 18); // RX, TX
+#define GY_25_SERIAL servoDriver
 
-long int gy_data[4] = {0};
-int gy_number = 0;
-long int cache_message = 0;
+#include "gy-25-parser.h"
+GY25Parser gy25;
 
-
-// #include <ESP32Servo.h>
-// Servo servo_1;
-// Servo servo_2;
 int global_stick_l_old = -1, global_stick_r_old = -1;
 unsigned long int servo_update_time = 0;
 
@@ -50,19 +37,13 @@ unsigned long int servo_update_time = 0;
 int global_e_old = 0;
 
 void setup(){
-  //Serial.begin(9600);
+  gy25.setup();
+
   Serial.begin(115200);
   MotorShield.setup();
   FlySky.begin(Serial2);
   servoDriver.begin(9600);
-  // gy25.setup();
-  // firstSetupLazers();
-  // lazer_1.setup();
-  // lazer_2.setup();
-
-  // servo_1.attach(14);
-  // servo_2.attach(27);
-
+  
   #ifdef WIFI_BOOTLOAD
   if (digitalRead(ENABLE_BUTTON)==1) {
     esp.setup();
@@ -77,82 +58,16 @@ void setup(){
   }
   #endif
   
-  // MotorShield.run(100,100);
-  // delay(1000);
-  // MotorShield.run(100,0); delay(1000);
-  // MotorShield.run(-100,0); delay(1000);
-  // MotorShield.run(30,0); delay(1000);
-  // MotorShield.run(-30,0); delay(1000);
-  // MotorShield.run(0,100); delay(1000);
-  // MotorShield.run(0,-100); delay(1000);
-  // MotorShield.run();
-
   MotorShield.run(10, 10);
   delay(1000);
   MotorShield.run();
 }
 
 void loop() { 
-  // Serial.println(String(lazer_1.get()) + " " + String(lazer_2.get())); delay(100);
   mainFlySky();
-  // gy25.update();
-  // gy25Update();
-
-  // gy25Test();
-  // servoUpdate();
+  gy25.parseData();
   // esp.update(); 
 }
-
-void gy25Update() {
-  if (Serial.available()>0) {
-    char f = Serial.read();
-    if (f=='0') cache_message = cache_message*10;
-    if (f=='1') cache_message = cache_message*10+1;
-    if (f=='2') cache_message = cache_message*10+2;
-    if (f=='3') cache_message = cache_message*10+3;
-    if (f=='4') cache_message = cache_message*10+4;
-    if (f=='5') cache_message = cache_message*10+5;
-    if (f=='6') cache_message = cache_message*10+6;
-    if (f=='7') cache_message = cache_message*10+7;
-    if (f=='8') cache_message = cache_message*10+8;
-    if (f=='9') cache_message = cache_message*10+9;
-    if (f==' ') {
-      gy_data[gy_number] = cache_message;
-      gy_number++;
-      cache_message = 0;
-    }
-    if (f=='\n') {
-      gy_number = 0;
-      cache_message = 0;
-    }
-  }
-}
-
-/*void mainKoridor() {
-  int m = 30;
-  float k_pid_backward = 1.0;
-  float k_pid_forward = 0.2;
-
-  int e = lazer_1.get() - lazer_2.get();
-  int p = e;
-  // long int kub = e*e*e;
-  // global_integral = global_integral*0.7 + e;
-  int d = e-global_e_old;
-  global_e_old = e;
-
-  long int pid = 0;
-  pid += p*0.13; // 0.13
-  // pid += global_integral*0.07;
-  // pid += kub*0.008;
-  // pid += d*1; 
-  // Serial.println(pid);
-  
-  int pid_forward = constrain(abs(pid),0,m*k_pid_forward);
-  int pid_backward = constrain(abs(pid),0,m*k_pid_backward);
-  if (pid<0) MotorShield.run(m+pid_forward,m-pid_backward);
-  else MotorShield.run(m-pid_backward,m+pid_forward);
-  // MotorShield.run(m-pid,m+pid);
-}*/
 
 void mainFlySky() {
   // for (int i = 0; i<14; i++) Serial.print(String(FlySky.readChannel(i)) + " "); Serial.println();
@@ -195,7 +110,7 @@ void mainFlySky() {
       MotorShield.run(left_speed, right_speed);
     }
     else if (swc==0) { // auto_gyroscope
-
+      
     }
     else { // auto_black_line
       float K = 0.2;
@@ -214,8 +129,5 @@ void mainFlySky() {
     MotorShield.run();
   }
 
-  // if (main_flysky_time>millis()) return;
-  // main_flysky_time = millis() + 50;
   delay(10); //   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!   НУЖНО!!!
 }
-
