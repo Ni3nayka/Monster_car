@@ -28,8 +28,10 @@ class GY25Parser {
 
     void parseData() {
       if (GY_25_SERIAL.available() > 0) {
-        static String inputString = ""; // Строка для накопления входных данных
+        static String inputString;// = ""; // Строка для накопления входных данных
         char inChar = GY_25_SERIAL.read(); // Чтение символа
+        // Serial.println(inChar);
+        // Serial.println(inputString);
         
         if (inChar != '\n' && inChar != '\r') {
           // Если это не символ конца строки, добавляем его в строку
@@ -48,6 +50,8 @@ class GY25Parser {
             
             if (isNumber) {
               int number = inputString.toInt();
+              Serial.print(" ");
+              Serial.println(number);
               GY25Parser::writeGyroscopeData(number);
             } 
             
@@ -56,6 +60,10 @@ class GY25Parser {
           }
         }
       }
+    }
+
+    void requestData() {
+      GY_25_SERIAL.println("7");
     }
 
   private:
@@ -69,7 +77,7 @@ class GY25Parser {
 
     void writeGyroscopeData(int number) {
       for (int i = 0; i<GY_25_DATA_SIZE; i++) {
-        if (GY25Parser::data[i]!=GY_25_DATA_NONE) {
+        if (GY25Parser::data[i]==GY_25_DATA_NONE) {
           GY25Parser::data[i] = number;
           if (GY_25_DATA_SIZE==i+1) {
             GY25Parser::recieved_data = 1;
