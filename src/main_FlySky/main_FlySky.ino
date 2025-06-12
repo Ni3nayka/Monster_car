@@ -18,8 +18,8 @@ AVOCADO_esp esp;
 #include "motor.h"
 
 #include "FlySky.h"
-#define EXACT_FORWARD_K 0.3
-#define TURN_K 0.35
+#define EXACT_FORWARD_K 0.6 // 0.3
+#define TURN_K 0.45 // 0.35
 unsigned long int main_flysky_time = 0;
 
 
@@ -72,9 +72,9 @@ void setup(){
 }
 
 void loop() { 
-  // mainFlySky();
-  gyroscopeRun();
-  gy25.parseData();
+  mainFlySky();
+  // gyroscopeRun();
+  // gy25.parseData();
   
   #ifdef WIFI_BOOTLOAD
   esp.update(); 
@@ -132,9 +132,10 @@ void mainFlySky() {
       gyroscopeRun();
     }
     else { // auto_black_line
-      float K = 0.1;
-      long int e = (analogRead(LINE_SENSOR_LEFT)-analogRead(LINE_SENSOR_RIGHT))*K;
-      int M = 50; // 28
+      //float K = 0.07;
+      float K = 0.15;
+      long int e = (analogRead(LINE_SENSOR_LEFT)-analogRead(LINE_SENSOR_RIGHT)+120)*K;
+      int M = 60; // 28
       // Serial.println(e);
       // int l = constrain(M+e, -M, M);
       // int r = constrain(M-e, -M, M);
