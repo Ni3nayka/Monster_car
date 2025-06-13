@@ -19,7 +19,7 @@ AVOCADO_esp esp;
 
 #include "FlySky.h"
 #define EXACT_FORWARD_K 0.6 // 0.3
-#define TURN_K 0.45 // 0.35
+#define TURN_K 0.55 // 0.35
 unsigned long int main_flysky_time = 0;
 
 
@@ -131,18 +131,31 @@ void mainFlySky() {
     else if (swc==0) { // auto_gyroscope
       gyroscopeRun();
     }
+
     else { // auto_black_line
-      //float K = 0.07;
-      float K = 0.15;
-      long int e = (analogRead(LINE_SENSOR_LEFT)-analogRead(LINE_SENSOR_RIGHT)+120)*K;
-      int M = 60; // 28
+      float K = 0.1;
+      long int e = (4095-analogRead(LINE_SENSOR_LEFT)-analogRead(LINE_SENSOR_RIGHT)-2600)*K;
+      int M = 50; // 28
       // Serial.println(e);
-      // int l = constrain(M+e, -M, M);
-      // int r = constrain(M-e, -M, M);
       int l = constrain(M+e, -M, M);
       int r = constrain(M-e, -M, M);
+      // int l = M+e;
+      // int r = M-e;
       MotorShield.run(l, r);
     }
+    // else { // auto_black_line
+    //   //float K = 0.15;
+    //   float K = 0.25;
+    //   //long int e = (analogRead(LINE_SENSOR_LEFT)-analogRead(LINE_SENSOR_RIGHT)+120)*K;
+    //   long int e = (900-analogRead(LINE_SENSOR_RIGHT))*K;
+    //   int M = 30; // 28
+    //   Serial.println(e);
+    //   // int l = constrain(M+e, -M, M);
+    //   // int r = constrain(M-e, -M, M);
+    //   int l = M+e;
+    //   int r = M-e;
+    //   MotorShield.run(l, r);
+    // }
     
     // servo_1.write(map(stick_l,-100,100,0,180));
     // servo_2.write(map(stick_r,-100,100,0,180));
