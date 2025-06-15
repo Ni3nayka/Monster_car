@@ -1,0 +1,6 @@
+# install:
+# https://opencv.org/get-started/
+apt install libopencv-dev
+pip3 install opencv-python
+
+# https://www.embeddedhow.com/post/getting-started-with-opencv-c
